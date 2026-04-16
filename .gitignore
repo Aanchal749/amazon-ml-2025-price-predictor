@@ -1,0 +1,6 @@
+dataset_images/
+dataset/
+features/
+models/*.pkl
+__pycache__/
+.streamlit/secrets.toml
