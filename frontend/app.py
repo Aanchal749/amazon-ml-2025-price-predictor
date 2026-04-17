@@ -24,13 +24,14 @@ API_URL = "https://amazon-ml-2025-price-predictor.onrender.com/predict"
 HEALTH_URL = "https://amazon-ml-2025-price-predictor.onrender.com/health"
 
 # ─────────────────────────────────────────────────────────
-# SUPABASE INITIALIZATION
+# SUPABASE INITIALIZATION (Securely using Streamlit Secrets)
 # ─────────────────────────────────────────────────────────
 @st.cache_resource
 def init_supabase():
     try:
-        url = st.secrets.get("SUPABASE_URL", "https://dqbirxwhitqijqlkbuzm.supabase.co")
-        key = st.secrets.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmlyeHdoaXRxaWpxbGtidXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzYyNjgsImV4cCI6MjA5MTg1MjI2OH0.th8v0wCSLx9T4HlVyZ-_dg_CRLtpFQ8wjZeLa8Ypzus")
+        # Securely grabs the keys from Streamlit Cloud's secret vault!
+        url = st.secrets["https://dqbirxwhitqijqlkbuzm.supabase.co"]
+        key = st.secrets["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmlyeHdoaXRxaWpxbGtidXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzYyNjgsImV4cCI6MjA5MTg1MjI2OH0.th8v0wCSLx9T4HlVyZ-_dg_CRLtpFQ8wjZeLa8Ypzus"]
         return create_client(url, key)
     except Exception:
         return None
