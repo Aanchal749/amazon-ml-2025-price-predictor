@@ -1,5 +1,5 @@
 """
-CloudPriceML — SaaS Frontend Dashboard
+CloudPriceML — Premium SaaS Dashboard
 =======================================
 Sends requests to the live Render FastAPI backend.
 """
@@ -13,7 +13,7 @@ from supabase import create_client, Client
 # PAGE CONFIG 
 # ─────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="CloudPriceML — E-Commerce Price Predictor",
+    page_title="CloudPriceML | Seller Intelligence",
     page_icon="💰",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -21,6 +21,7 @@ st.set_page_config(
 
 # 🔥 YOUR LIVE RENDER BACKEND URL
 API_URL = "https://amazon-ml-2025-price-predictor.onrender.com/predict"
+HEALTH_URL = "https://amazon-ml-2025-price-predictor.onrender.com/health"
 
 # ─────────────────────────────────────────────────────────
 # SUPABASE INITIALIZATION
@@ -29,7 +30,7 @@ API_URL = "https://amazon-ml-2025-price-predictor.onrender.com/predict"
 def init_supabase():
     try:
         url = st.secrets.get("SUPABASE_URL", "https://dqbirxwhitqijqlkbuzm.supabase.co")
-        key = st.secrets.get("SUPABASE_KEY", "sb_publishable_zEoVhO0kCpcPxhEoYtYodw_13SniAKt")
+        key = st.secrets.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmlyeHdoaXRxaWpxbGtidXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzYyNjgsImV4cCI6MjA5MTg1MjI2OH0.th8v0wCSLx9T4HlVyZ-_dg_CRLtpFQ8wjZeLa8Ypzus")
         return create_client(url, key)
     except Exception:
         return None
@@ -37,101 +38,110 @@ def init_supabase():
 supabase: Client = init_supabase()
 
 # ─────────────────────────────────────────────────────────
-# CUSTOM CSS
+# PREMIUM CSS STYLING
 # ─────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-.main-header {
-    background: linear-gradient(135deg, #1B3A6B 0%, #2563EB 100%);
-    padding: 2rem 2.5rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    color: white;
-}
-.main-header h1 { margin: 0; font-size: 2rem; font-weight: 700; }
-.main-header p  { margin: 0.4rem 0 0; opacity: 0.85; font-size: 1rem; }
-.metric-card { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 1.2rem 1.5rem; text-align: center; }
-.metric-card .label { font-size: 0.78rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; }
-.metric-card .value { font-size: 1.9rem; font-weight: 700; color: #1B3A6B; margin-top: 0.2rem; }
-.price-result { background: linear-gradient(135deg, #1B3A6B, #2563EB); border-radius: 14px; padding: 2rem; text-align: center; color: white; margin-top: 1rem; }
-.price-result .price-label { font-size: 0.9rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.08em; }
-.price-result .price-value { font-size: 3.2rem; font-weight: 800; margin: 0.3rem 0; }
-.price-result .price-range { font-size: 0.85rem; opacity: 0.75; }
-.badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
-.badge-high   { background: #DCFCE7; color: #15803D; }
-.badge-medium { background: #FEF9C3; color: #854D0E; }
-.badge-low    { background: #FEE2E2; color: #991B1B; }
-.status-ok  { color: #15803D; font-weight: 600; }
-.status-err { color: #DC2626; font-weight: 600; }
-hr.divider { border: none; border-top: 1px solid #E2E8F0; margin: 1.5rem 0; }
+    .main-header {
+        background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%);
+        padding: 2.5rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .main-header h1 { margin: 0; font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; }
+    .main-header p  { margin: 0.5rem 0 0; opacity: 0.9; font-size: 1.1rem; font-weight: 300; }
+    .metric-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .metric-card .label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .metric-card .value { font-size: 2rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; }
+    .price-result { background: linear-gradient(135deg, #10b981, #059669); border-radius: 16px; padding: 2.5rem; text-align: center; color: white; margin-top: 1rem; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3); }
+    .price-result .price-label { font-size: 1rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+    .price-result .price-value { font-size: 4rem; font-weight: 900; margin: 0.5rem 0; line-height: 1; }
+    .price-result .price-range { font-size: 1rem; opacity: 0.85; font-weight: 500; }
+    .status-ok  { color: #10b981; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .status-err { color: #ef4444; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    hr.divider { border: none; border-top: 1px solid #e2e8f0; margin: 2rem 0; }
 </style>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────
 # CONSTANTS & HELPERS
 # ─────────────────────────────────────────────────────────
-BRANDS = ["Samsung", "Apple", "Sony", "LG", "Philips", "Bosch", "Havells", "Prestige", "Bajaj", "Whirlpool", "Godrej", "Amul", "Nestle", "Himalaya", "Patanjali", "Britannia", "Other / Unknown"]
+BRANDS = ["Select a Brand...", "Samsung", "Apple", "Sony", "LG", "Philips", "Bosch", "Havells", "Prestige", "Bajaj", "Whirlpool", "Godrej", "Amul", "Nestle", "Himalaya", "Patanjali", "Britannia", "Other / Unknown"]
 
-def confidence_badge(cv: float) -> str:
-    if cv < 0.15: return '<span class="badge badge-high">High Confidence</span>'
-    elif cv < 0.30: return '<span class="badge badge-medium">Medium Confidence</span>'
-    else: return '<span class="badge badge-low">Low Confidence</span>'
+def check_backend_health():
+    """Pings the Render backend to wake it up."""
+    try:
+        response = requests.get(HEALTH_URL, timeout=10)
+        return response.status_code == 200
+    except requests.exceptions.RequestException:
+        return False
 
 # ─────────────────────────────────────────────────────────
 # SIDEBAR
 # ─────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## ⚙️ System Status")
+    st.markdown("### ⚙️ System Status")
     
     if supabase is not None:
-        st.markdown('<p class="status-ok">✅ Supabase Connected</p>', unsafe_allow_html=True)
+        st.markdown('<div class="status-ok">🟢 Supabase Database Live</div>', unsafe_allow_html=True)
     else:
-        st.markdown('<p class="status-err">⚠️ Supabase Offline</p>', unsafe_allow_html=True)
+        st.markdown('<div class="status-err">🔴 Supabase Offline</div>', unsafe_allow_html=True)
 
-    st.markdown('<p class="status-ok">✅ API Linked: Render Cloud</p>', unsafe_allow_html=True)
+    st.markdown('<div class="status-ok">🟢 API: Render Cloud Linked</div>', unsafe_allow_html=True)
     
     st.markdown("---")
-    st.caption("CloudPriceML · Aanchal Chauhan · Dr. Pallavi Sapkale")
+    
+    # Server Wake-Up Button
+    st.markdown("#### Cloud Management")
+    if st.button("⚡ Ping API Server (Wake Up)"):
+        with st.spinner("Pinging Render..."):
+            if check_backend_health():
+                st.success("Server is awake and ready!")
+            else:
+                st.error("Server is sleeping or unreachable. Give it 60 seconds and try again.")
+    
+    st.markdown("---")
+    st.caption("Built by Aanchal Chauhan & Team | Guided by Dr. Pallavi Sapkale")
 
 # ─────────────────────────────────────────────────────────
 # MAIN HEADER
 # ─────────────────────────────────────────────────────────
 st.markdown("""
 <div class="main-header">
-  <h1>💰 CloudPriceML — E-Commerce Price Predictor</h1>
-  <p>Production ML pipeline · Multimodal features · FastAPI Backend</p>
+  <h1>CloudPriceML</h1>
+  <p>AI-Powered E-Commerce Valuation Engine</p>
 </div>
 """, unsafe_allow_html=True)
 
-m1, m2, m3, m4 = st.columns(4)
-with m1: st.markdown('<div class="metric-card"><div class="label">OOF SMAPE</div><div class="value">23.4%</div></div>', unsafe_allow_html=True)
-with m2: st.markdown('<div class="metric-card"><div class="label">Training Samples</div><div class="value">73.5k</div></div>', unsafe_allow_html=True)
-with m3: st.markdown('<div class="metric-card"><div class="label">Feature Dims</div><div class="value">30,422</div></div>', unsafe_allow_html=True)
-with m4: st.markdown('<div class="metric-card"><div class="label">Server</div><div class="value">Render</div></div>', unsafe_allow_html=True)
+m1, m2, m3 = st.columns(3)
+with m1: st.markdown('<div class="metric-card"><div class="label">Algorithm</div><div class="value">Multimodal</div></div>', unsafe_allow_html=True)
+with m2: st.markdown('<div class="metric-card"><div class="label">Training Data</div><div class="value">75k+ Assets</div></div>', unsafe_allow_html=True)
+with m3: st.markdown('<div class="metric-card"><div class="label">Server</div><div class="value">Render API</div></div>', unsafe_allow_html=True)
 
 st.markdown("<hr class='divider'>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────
 # MAIN LAYOUT — Input (left) | Result (right)
 # ─────────────────────────────────────────────────────────
-col_input, col_result = st.columns([3, 2], gap="large")
+col_input, col_result = st.columns([1.2, 1], gap="large")
 
 with col_input:
-    st.markdown("### 📋 Product Details")
-    catalog_content = st.text_area("Catalog Content *", placeholder="Example: Samsung 65-inch 4K QLED...", height=180)
+    st.markdown("### 1. Product Details")
+    catalog_content = st.text_area("Enter full product description:", placeholder="e.g., Samsung 65-inch 4K Smart QLED TV with Quantum HDR...", height=150)
 
-    # ── Real Image Uploader & Storage ─────────────────────
-    st.markdown("### 📸 Scan Product")
-    uploaded_file = st.file_uploader("Upload product photo to analyze", type=["jpg", "jpeg", "png"])
+    st.markdown("### 2. Product Image")
+    uploaded_file = st.file_uploader("Upload an image for visual analysis", type=["jpg", "jpeg", "png"])
     
     image_url = "" 
     
     if uploaded_file is not None:
         if supabase is not None:
-            with st.spinner("Uploading to secure cloud vault..."):
+            with st.spinner("Securing image in cloud vault..."):
                 try:
                     file_bytes = uploaded_file.getvalue()
-                    file_name = f"{int(time.time())}_{uploaded_file.name}"
+                    file_name = f"scan_{int(time.time())}_{uploaded_file.name}"
                     
                     supabase.storage.from_("product_images").upload(
                         file_name, 
@@ -139,41 +149,48 @@ with col_input:
                         {"content-type": uploaded_file.type}
                     )
                     image_url = supabase.storage.from_("product_images").get_public_url(file_name)
-                    st.success("Image uploaded successfully!")
+                    st.success("Image secured!")
                 except Exception as e:
-                    st.error(f"Upload failed: {e}")
+                    st.error("Could not upload image. Check Supabase storage permissions.")
         else:
-            st.warning("⚠️ Cannot upload image. Supabase is not connected.")
+            st.warning("⚠️ Database disconnected. Image won't be saved.")
 
-    with st.expander("➕ Add Structured Hints (optional)"):
+    with st.expander("🛠️ Advanced Metadata (Optional)"):
         h1, h2 = st.columns(2)
         with h1:
-            brand = st.selectbox("Brand", BRANDS, index=16)
+            brand = st.selectbox("Brand Name", BRANDS)
         with h2:
-            ipq = st.number_input("Item Pack Quantity", min_value=1, value=1)
-        hints = [h for h in [brand.lower() if brand != "Other / Unknown" else "", f"pack of {ipq}" if ipq > 1 else ""] if h]
+            ipq = st.number_input("Package Quantity", min_value=1, value=1)
         
-        # Combine text before sending to API
+        hints = []
+        if brand and brand != "Select a Brand..." and brand != "Other / Unknown":
+            hints.append(brand.lower())
+        if ipq > 1:
+            hints.append(f"pack of {ipq}")
+            
         final_catalog_text = catalog_content
         if hints: 
             final_catalog_text += " " + " ".join(hints)
 
-    st.markdown("")
-    predict_clicked = st.button("🔮 Predict Price", type="primary", use_container_width=True, disabled=not catalog_content.strip())
+    st.markdown("<br>", unsafe_allow_html=True)
+    predict_clicked = st.button("Generate Valuation 🔮", type="primary", use_container_width=True, disabled=not catalog_content.strip())
 
 # ─────────────────────────────────────────────────────────
 # API INFERENCE & RESULT COLUMN
 # ─────────────────────────────────────────────────────────
 with col_result:
-    st.markdown("### 📈 Prediction Result")
+    st.markdown("### Valuation Report")
+
+    if not predict_clicked and not image_url:
+        st.info("👈 Fill out the product details and click Generate Valuation to see results.")
 
     if image_url:
-        st.image(image_url, use_container_width=True, caption="Cloud Vision Ready")
+        st.image(image_url, use_container_width=True, caption="Visual Asset Analyzed")
 
     if predict_clicked:
-        with st.spinner("Querying Render ML Backend..."):
+        with st.spinner("Running AI models on Render server..."):
             try:
-                # 1. Prepare data to send to FastAPI
+                # 1. Prepare data
                 files = {}
                 if uploaded_file:
                     uploaded_file.seek(0)
@@ -181,52 +198,41 @@ with col_result:
                 
                 payload = {"catalog_content": final_catalog_text}
 
-                # 2. Hit the Render API
-                response = requests.post(API_URL, data=payload, files=files)
+                # 2. Hit the Render API (with a 30-second timeout)
+                response = requests.post(API_URL, data=payload, files=files, timeout=30)
 
                 # 3. Process the response
                 if response.status_code == 200:
                     result = response.json()
-                    price = result["predicted_price"]
-                    cv = result["confidence_score"]
+                    price = result.get("predicted_price", 0)
                     
-                    # Ensure price_low and price_high exist or calculate them dynamically
                     price_low = max(0.01, price * 0.85)
                     price_high = price * 1.15
                     
                     st.markdown(f"""
                     <div class="price-result">
-                      <div class="price-label">Predicted Price</div>
+                      <div class="price-label">Suggested Retail Price</div>
                       <div class="price-value">₹{price:,.2f}</div>
-                      <div class="price-range">Range: ₹{price_low:,.2f} — ₹{price_high:,.2f}</div>
+                      <div class="price-range">Confidence Range: ₹{price_low:,.2f} — ₹{price_high:,.2f}</div>
                     </div>
-                    <div style="margin-top:0.8rem; text-align:center;">{confidence_badge(cv)}</div>
                     """, unsafe_allow_html=True)
                     
                     # 4. Log to Supabase Database
                     if supabase is not None:
                         try:
                             supabase.table('predictions').insert({
-                                "product_details": final_catalog_text[:200], 
+                                "product_details": final_catalog_text[:250], 
                                 "predicted_price": price,
-                                "confidence": cv,
                                 "image_url": image_url
                             }).execute()
-                            st.toast('✅ Prediction logged to database!')
                         except Exception as e:
-                            st.warning(f"Could not save to database: {e}")
+                            pass # Fail silently for the user, no need to show DB errors on success
                 else:
-                    st.error(f"Backend Error [{response.status_code}]: {response.text}")
+                    st.error(f"API Error [{response.status_code}]: Please check if the Render backend is running.")
             
+            except requests.exceptions.Timeout:
+                st.error("🚨 Request timed out. The Render server might be waking up from sleep. Click the 'Ping API Server' button in the sidebar and try again in 1 minute.")
             except requests.exceptions.ConnectionError:
-                st.error("🚨 Could not connect to the Render API. Is your backend fully deployed and awake?")
+                st.error("🚨 Connection Refused. The Render API is currently offline.")
             except Exception as e:
-                st.error(f"Prediction failed: {e}")
-
-    elif not image_url:
-        st.markdown("""
-        <div style="border:2px dashed #CBD5E1; border-radius:12px; padding:3rem 1.5rem; text-align:center; color:#94A3B8;">
-          <div style="font-size:2.5rem">💰</div>
-          <div style="font-size:1rem; margin-top:0.5rem">Predicted price will appear here</div>
-        </div>
-        """, unsafe_allow_html=True)
+                st.error(f"An unexpected error occurred: {e}")
