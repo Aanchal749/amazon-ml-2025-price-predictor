@@ -15,7 +15,7 @@ xgboost==2.0.2
 catboost==1.2.2
 
 # Multimodal Engine
-torch==2.1.1
+torch
 transformers==4.35.2
 sentence-transformers==2.2.2
 Pillow==10.1.0
