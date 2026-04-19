@@ -72,9 +72,9 @@ In the hyper-competitive e-commerce landscape, sellers struggle to price items o
 
 ## 🚀 Local Installation & Setup
 
-If you wish to run this cloud architecture on your local machine:
+If you wish to run this project on your local machine:
 
-**1. Clone the repository**
+### 1️⃣ Clone the repository
 ```bash
-git clone [https://github.com/aanchal749/amazon-ml-2025-price-predictor.git](https://github.com/aanchal749/amazon-ml-2025-price-predictor.git)
+git clone https://github.com/Aanchal749/amazon-ml-2025-price-predictor.git
 cd amazon-ml-2025-price-predictor
