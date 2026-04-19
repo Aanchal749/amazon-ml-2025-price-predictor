@@ -19,12 +19,11 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# 🔥 YOUR LIVE RENDER BACKEND URL
 API_URL    = "https://amazon-ml-2025-price-predictor.onrender.com/predict"
 HEALTH_URL = "https://amazon-ml-2025-price-predictor.onrender.com/health"
 
 # ─────────────────────────────────────────────────────────
-# SUPABASE INITIALIZATION
+# SUPABASE
 # ─────────────────────────────────────────────────────────
 @st.cache_resource
 def init_supabase():
@@ -39,445 +38,597 @@ def init_supabase():
 supabase: Client = init_supabase()
 
 # ─────────────────────────────────────────────────────────
-# PROFESSIONAL LIGHT THEME CSS
+# CSS — Desktop-first, fluid, professional light theme
 # ─────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+/* ── Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Outfit', sans-serif;
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CSS VARIABLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+    --bg:        #f5f4f0;
+    --surface:   #ffffff;
+    --border:    #e5e1d8;
+    --border-lt: #f0ede8;
+    --ink:       #1a1714;
+    --ink-mid:   #6b6560;
+    --ink-soft:  #9e978e;
+    --ink-ghost: #b5aea5;
+    --gold:      #c47c2e;
+    --gold-lt:   #d4924a;
+    --gold-bg:   rgba(196,124,46,0.10);
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
 }
-.stApp {
-    background: #f5f4f0;
-}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BASE RESET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
+
+.stApp { background: var(--bg) !important; }
+
+/* Remove Streamlit's default top padding & limit width */
 .block-container {
-    padding-top: 0 !important;
-    padding-bottom: 3rem !important;
-    max-width: 1280px !important;
+    padding: 0 2rem 4rem !important;
+    max-width: 1400px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
 }
 
-/* ── Sidebar ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SIDEBAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 [data-testid="stSidebar"] {
-    background: #ffffff !important;
-    border-right: 1px solid #e5e1d8 !important;
-    box-shadow: 2px 0 12px rgba(0,0,0,0.04);
+    background: var(--surface) !important;
+    border-right: 1px solid var(--border) !important;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.05) !important;
 }
-[data-testid="stSidebar"] .stMarkdown p,
-[data-testid="stSidebar"] .stMarkdown li {
-    color: #6b6560 !important;
-    font-size: 0.85rem !important;
-}
-[data-testid="stSidebar"] h3,
-[data-testid="stSidebar"] h4 {
+[data-testid="stSidebar"] > div { padding: 1.5rem 1.2rem !important; }
+[data-testid="stSidebar"] .stMarkdown p { color: var(--ink-mid) !important; font-size: 0.83rem !important; line-height: 1.6 !important; }
+[data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4 {
     font-family: 'Outfit', sans-serif !important;
-    font-weight: 600 !important;
-    color: #1a1714 !important;
-    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.14em !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.08em !important;
+    color: var(--ink) !important;
+    margin: 0 0 0.8rem !important;
 }
 
-/* ── Top nav bar ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TOP NAV BAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .topbar {
-    background: #ffffff;
-    border-bottom: 1px solid #e5e1d8;
-    padding: 0.85rem 3rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    /* stretch edge-to-edge within block-container */
+    margin: 0 -2rem 0;
+    padding: 0.9rem 2.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: -1rem -3rem 0;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: var(--shadow-sm);
 }
+.topbar-left { display: flex; align-items: center; gap: 1rem; }
 .topbar-brand {
     font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #1a1714;
+    color: var(--ink);
     letter-spacing: -0.02em;
+    white-space: nowrap;
 }
-.topbar-brand span { color: #c47c2e; }
-.topbar-meta {
-    font-size: 0.78rem;
-    color: #9e978e;
-    letter-spacing: 0.06em;
+.topbar-brand span { color: var(--gold); }
+.topbar-pill {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.22rem 0.75rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    font-weight: 500;
+    color: var(--ink-soft);
+}
+.topbar-right {
+    font-size: 0.75rem;
+    color: var(--ink-ghost);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
 }
 
-/* ── Hero ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HERO BANNER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .hero-section {
-    background: linear-gradient(108deg, #1a1714 0%, #2d2520 55%, #3d3020 100%);
-    border-radius: 20px;
-    padding: 3.5rem 3.5rem 3rem;
-    margin: 1.5rem 0 2rem;
+    background: linear-gradient(110deg, #1a1714 0%, #2d2520 55%, #3d3020 100%);
+    border-radius: var(--radius-xl);
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1.8rem, 4vw, 3.5rem);
+    margin: 1.5rem 0 1.8rem;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
 }
 .hero-section::before {
     content: '';
-    position: absolute;
-    top: -100px; right: -60px;
-    width: 380px; height: 380px;
-    background: radial-gradient(circle, rgba(196,124,46,0.22) 0%, transparent 65%);
+    position: absolute; top: -120px; right: -80px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(196,124,46,0.2) 0%, transparent 65%);
     pointer-events: none;
 }
 .hero-section::after {
     content: '';
-    position: absolute;
-    bottom: -80px; left: 40%;
-    width: 260px; height: 260px;
-    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    position: absolute; bottom: -80px; left: 35%;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
     pointer-events: none;
 }
+.hero-text { flex: 1; min-width: 280px; position: relative; z-index: 1; }
 .hero-kicker {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 600;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #c47c2e;
+    color: var(--gold);
     margin-bottom: 0.7rem;
 }
 .hero-title {
     font-family: 'Playfair Display', serif;
-    font-size: 2.9rem;
+    font-size: clamp(2rem, 3.5vw, 3rem);
     font-weight: 700;
     color: #faf8f4;
     line-height: 1.1;
     letter-spacing: -0.02em;
     margin: 0 0 0.8rem;
 }
-.hero-title em { font-style: italic; color: #d4924a; }
+.hero-title em { font-style: italic; color: var(--gold-lt); }
 .hero-sub {
-    color: #9e978e;
-    font-size: 1rem;
+    color: var(--ink-soft);
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
     font-weight: 300;
-    max-width: 520px;
+    max-width: 480px;
     line-height: 1.65;
     margin: 0;
 }
+.hero-badges { display: flex; gap: 0.6rem; flex-wrap: wrap; position: relative; z-index: 1; }
+.hero-badge {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 1.1rem;
+    text-align: center;
+    min-width: 90px;
+}
+.hb-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #faf8f4;
+    line-height: 1;
+}
+.hb-lbl {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 0.25rem;
+}
 
-/* ── Stat strip ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   STAT STRIP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .stat-strip {
     display: flex;
     gap: 1px;
-    background: #e5e1d8;
-    border: 1px solid #e5e1d8;
-    border-radius: 14px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    margin-bottom: 2.5rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
 }
 .stat-item {
-    background: #ffffff;
-    flex: 1;
-    padding: 1.2rem 1.6rem;
-    transition: background 0.2s;
+    background: var(--surface);
+    flex: 1 1 0;
+    padding: 1rem 1.2rem;
+    transition: background 0.18s;
+    min-width: 0;
 }
 .stat-item:hover { background: #faf8f4; }
 .si-label {
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #9e978e;
+    color: var(--ink-soft);
     margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .si-value {
     font-family: 'Playfair Display', serif;
-    font-size: 1.45rem;
+    font-size: clamp(1rem, 1.8vw, 1.4rem);
     font-weight: 600;
-    color: #1a1714;
+    color: var(--ink);
     letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* ── Panel header ── */
-.panel-header {
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CONTENT CARDS (white panels)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.content-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.6rem 1.8rem 1.4rem;
+    margin-bottom: 1.2rem;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SECTION LABELS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.sec-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.1rem;
-    padding-bottom: 0.9rem;
-    border-bottom: 1px solid #f0ede8;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--border-lt);
 }
-.panel-step {
-    background: #1a1714;
-    color: #c47c2e;
-    font-size: 0.65rem;
+.sec-step {
+    background: var(--ink);
+    color: var(--gold);
+    font-size: 0.6rem;
     font-weight: 700;
     letter-spacing: 0.1em;
-    padding: 0.28rem 0.65rem;
+    padding: 0.22rem 0.6rem;
     border-radius: 100px;
     text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
-.panel-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #1a1714;
-    letter-spacing: 0.02em;
+.sec-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
-/* ── Inputs ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   STREAMLIT INPUTS — styled to match theme
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .stTextArea textarea {
     background: #faf8f4 !important;
-    border: 1.5px solid #e5e1d8 !important;
-    border-radius: 10px !important;
-    color: #1a1714 !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--ink) !important;
     font-family: 'Outfit', sans-serif !important;
-    font-size: 0.93rem !important;
-    line-height: 1.6 !important;
-    padding: 0.85rem 1rem !important;
-    transition: border-color 0.2s, box-shadow 0.2s !important;
+    font-size: 0.92rem !important;
+    line-height: 1.65 !important;
+    padding: 0.8rem 1rem !important;
+    width: 100% !important;
+    resize: vertical !important;
+    transition: border-color 0.18s, box-shadow 0.18s !important;
 }
 .stTextArea textarea:focus {
-    border-color: #c47c2e !important;
-    box-shadow: 0 0 0 3px rgba(196,124,46,0.1) !important;
-    background: #ffffff !important;
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 3px var(--gold-bg) !important;
+    background: var(--surface) !important;
+    outline: none !important;
 }
 label[data-testid="stWidgetLabel"] p {
-    color: #6b6560 !important;
-    font-size: 0.82rem !important;
+    color: var(--ink-mid) !important;
+    font-size: 0.8rem !important;
     font-weight: 500 !important;
-    letter-spacing: 0.03em !important;
-    margin-bottom: 0.3rem !important;
+    letter-spacing: 0.02em !important;
 }
-.stSelectbox > div > div {
-    background: #faf8f4 !important;
-    border: 1.5px solid #e5e1d8 !important;
-    border-radius: 10px !important;
-    color: #1a1714 !important;
-}
+.stSelectbox > div > div,
 .stNumberInput input {
     background: #faf8f4 !important;
-    border: 1.5px solid #e5e1d8 !important;
-    border-radius: 10px !important;
-    color: #1a1714 !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--ink) !important;
+    font-family: 'Outfit', sans-serif !important;
 }
 [data-testid="stFileUploader"] {
     background: #faf8f4 !important;
     border: 1.5px dashed #d4c9bb !important;
-    border-radius: 12px !important;
-    transition: border-color 0.2s;
+    border-radius: var(--radius-md) !important;
+    transition: border-color 0.18s, background 0.18s !important;
+    width: 100% !important;
 }
 [data-testid="stFileUploader"]:hover {
-    border-color: #c47c2e !important;
+    border-color: var(--gold) !important;
     background: #fdf6ee !important;
 }
+/* Keep Streamlit columns from overflowing */
+[data-testid="stHorizontalBlock"] { gap: 1.5rem !important; align-items: flex-start !important; }
+[data-testid="column"] { min-width: 0 !important; }
 
-/* ── Primary CTA ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BUTTONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .stButton > button[kind="primary"] {
-    background: #1a1714 !important;
+    background: var(--ink) !important;
     border: none !important;
-    border-radius: 10px !important;
+    border-radius: var(--radius-md) !important;
     color: #ffffff !important;
     font-family: 'Outfit', sans-serif !important;
-    font-size: 0.92rem !important;
+    font-size: 0.88rem !important;
     font-weight: 600 !important;
-    letter-spacing: 0.06em !important;
+    letter-spacing: 0.07em !important;
     text-transform: uppercase !important;
-    padding: 0.8rem 2rem !important;
-    transition: all 0.2s !important;
-    box-shadow: 0 2px 10px rgba(26,23,20,0.18) !important;
+    padding: 0.75rem 1.5rem !important;
+    width: 100% !important;
+    transition: all 0.18s !important;
+    box-shadow: 0 2px 12px rgba(26,23,20,0.18) !important;
 }
 .stButton > button[kind="primary"]:hover:not(:disabled) {
     background: #2d2520 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 6px 20px rgba(26,23,20,0.25) !important;
+    box-shadow: 0 5px 20px rgba(26,23,20,0.26) !important;
 }
 .stButton > button[kind="primary"]:disabled {
-    background: #ccc7c0 !important;
+    background: #d4cfc9 !important;
     box-shadow: none !important;
-    color: #9e978e !important;
+    color: var(--ink-soft) !important;
+    cursor: not-allowed !important;
 }
-
-/* ── Secondary buttons ── */
 .stButton > button:not([kind="primary"]) {
-    background: #ffffff !important;
-    border: 1.5px solid #e5e1d8 !important;
-    border-radius: 10px !important;
-    color: #6b6560 !important;
+    background: var(--surface) !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--ink-mid) !important;
     font-family: 'Outfit', sans-serif !important;
     font-size: 0.82rem !important;
     font-weight: 500 !important;
-    transition: all 0.2s !important;
+    transition: all 0.18s !important;
+    width: 100% !important;
 }
 .stButton > button:not([kind="primary"]):hover {
-    border-color: #c47c2e !important;
-    color: #1a1714 !important;
+    border-color: var(--gold) !important;
+    color: var(--ink) !important;
 }
 
-/* ── Expander ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   EXPANDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 [data-testid="stExpander"] {
     background: #faf8f4 !important;
-    border: 1px solid #e5e1d8 !important;
-    border-radius: 12px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    width: 100% !important;
 }
 [data-testid="stExpander"] summary p {
-    font-size: 0.85rem !important;
-    color: #6b6560 !important;
+    font-size: 0.83rem !important;
+    color: var(--ink-mid) !important;
     font-weight: 500 !important;
 }
 
-/* ── Price result card ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   VALUATION RESULT CARD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .valuation-card {
-    background: #ffffff;
-    border: 1px solid #e5e1d8;
-    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-    animation: riseIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    animation: riseIn 0.42s cubic-bezier(0.22,1,0.36,1) both;
 }
 @keyframes riseIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    from { opacity: 0; transform: translateY(18px) scale(0.98); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .valuation-top {
     background: linear-gradient(135deg, #1a1714 0%, #3d3020 100%);
-    padding: 2.5rem 2rem 2rem;
+    padding: clamp(1.8rem, 4vw, 2.8rem) clamp(1.4rem, 3vw, 2.2rem);
     text-align: center;
     position: relative;
     overflow: hidden;
 }
 .valuation-top::before {
     content: '';
-    position: absolute;
-    top: -60px; right: -40px;
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(196,124,46,0.3) 0%, transparent 65%);
+    position: absolute; top: -70px; right: -50px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(196,124,46,0.28) 0%, transparent 65%);
+    pointer-events: none;
 }
 .val-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    background: rgba(196,124,46,0.15);
-    border: 1px solid rgba(196,124,46,0.35);
-    color: #d4924a;
-    font-size: 0.68rem;
+    gap: 0.35rem;
+    background: rgba(196,124,46,0.14);
+    border: 1px solid rgba(196,124,46,0.32);
+    color: var(--gold-lt);
+    font-size: 0.64rem;
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    padding: 0.3rem 0.9rem;
+    padding: 0.28rem 0.85rem;
     border-radius: 100px;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.1rem;
 }
 .val-price {
     font-family: 'Playfair Display', serif;
-    font-size: 4rem;
+    font-size: clamp(2.6rem, 6vw, 4rem);
     font-weight: 700;
     color: #faf8f4;
     line-height: 1;
     letter-spacing: -0.03em;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.35rem;
+    word-break: break-all;
 }
 .val-label {
-    font-size: 0.78rem;
-    color: #9e978e;
-    letter-spacing: 0.1em;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     font-weight: 500;
 }
 .valuation-bottom {
-    padding: 1.5rem 2rem;
+    padding: 1.4rem 1.8rem;
     background: #faf8f4;
-    border-top: 1px solid #f0ede8;
+    border-top: 1px solid var(--border-lt);
 }
 .range-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.9rem;
+    gap: 0.5rem;
 }
-.range-box { text-align: center; flex: 1; }
+.range-box { text-align: center; flex: 1; min-width: 0; }
 .rb-label {
-    font-size: 0.68rem;
-    color: #9e978e;
+    font-size: 0.62rem;
+    color: var(--ink-soft);
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.22rem;
+    white-space: nowrap;
 }
 .rb-val {
     font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
-    color: #1a1714;
+    font-size: clamp(0.9rem, 1.8vw, 1.15rem);
+    color: var(--ink);
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .range-divider {
-    width: 1px; height: 36px;
-    background: #e5e1d8;
-    margin: 0 1rem;
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+    flex-shrink: 0;
 }
 .val-note {
-    font-size: 0.75rem;
-    color: #b5aea5;
+    font-size: 0.72rem;
+    color: var(--ink-ghost);
     text-align: center;
     padding-top: 0.6rem;
-    border-top: 1px solid #f0ede8;
+    border-top: 1px solid var(--border-lt);
 }
 
-/* ── Result placeholder ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESULT PLACEHOLDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .result-empty {
-    background: #ffffff;
+    background: var(--surface);
     border: 1.5px dashed #d4c9bb;
-    border-radius: 20px;
-    padding: 4rem 2rem;
+    border-radius: var(--radius-xl);
+    padding: clamp(2.5rem, 6vw, 4rem) 2rem;
     text-align: center;
+    width: 100%;
 }
 .re-icon {
-    width: 56px; height: 56px;
-    background: #f5f4f0;
-    border: 1px solid #e5e1d8;
-    border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.6rem;
-    margin: 0 auto 1.2rem;
+    width: 52px; height: 52px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.1rem;
 }
 .result-empty h4 {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.95rem;
+    font-size: 0.93rem;
     font-weight: 600;
-    color: #1a1714;
-    margin: 0 0 0.5rem;
+    color: var(--ink);
+    margin: 0 0 0.45rem;
 }
 .result-empty p {
-    font-size: 0.83rem;
-    color: #9e978e;
+    font-size: 0.81rem;
+    color: var(--ink-soft);
     line-height: 1.6;
     max-width: 240px;
     margin: 0 auto;
 }
 
-/* ── Sidebar status dots ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SIDEBAR STATUS DOTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .status-row {
     display: flex;
     align-items: center;
     gap: 0.55rem;
-    padding: 0.55rem 0;
-    font-size: 0.82rem;
+    padding: 0.5rem 0;
+    font-size: 0.81rem;
     font-weight: 500;
-    color: #6b6560;
-    border-bottom: 1px solid #f0ede8;
+    color: var(--ink-mid);
+    border-bottom: 1px solid var(--border-lt);
 }
-.dot-green { width: 7px; height: 7px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.15); flex-shrink: 0; }
-.dot-red   { width: 7px; height: 7px; border-radius: 50%; background: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.15); flex-shrink: 0; }
+.dot-g { width: 7px; height: 7px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.14); flex-shrink: 0; }
+.dot-r { width: 7px; height: 7px; border-radius: 50%; background: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.14); flex-shrink: 0; }
 
-/* ── Misc ── */
-hr.div { border: none; border-top: 1px solid #e5e1d8; margin: 1.4rem 0; }
-.tip-text { font-size: 0.76rem; color: #b5aea5; margin-top: 0.4rem; line-height: 1.5; }
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MISC UTILITIES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+hr.hr-div { border: none; border-top: 1px solid var(--border-lt); margin: 1.2rem 0; }
+.tip { font-size: 0.74rem; color: var(--ink-ghost); margin-top: 0.35rem; line-height: 1.5; }
 
-/* ── Footer ── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FOOTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .footer {
     margin-top: 3rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e5e1d8;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--border);
     text-align: center;
-    font-size: 0.75rem;
-    color: #b5aea5;
-    letter-spacing: 0.05em;
+    font-size: 0.74rem;
+    color: var(--ink-ghost);
+    letter-spacing: 0.04em;
 }
-.footer strong { color: #6b6560; font-weight: 600; }
+.footer strong { color: var(--ink-mid); font-weight: 600; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESPONSIVE TWEAKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 900px) {
+    .stat-strip { flex-wrap: wrap; }
+    .stat-item  { flex: 1 1 calc(50% - 1px); }
+    .hero-badges { display: none; }  /* hide on small screens */
+    .topbar-right { display: none; }
+}
+@media (max-width: 600px) {
+    .stat-item { flex: 1 1 100%; }
+    .block-container { padding: 0 0.75rem 3rem !important; }
+    .topbar { padding: 0.75rem 1rem; }
+    .val-price { font-size: 2.2rem; }
+}
+
+/* Hide Streamlit's default header/footer chrome */
+#MainMenu, footer, header { visibility: hidden; height: 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -503,52 +654,59 @@ def check_backend_health():
 with st.sidebar:
     st.markdown("### System Status")
 
-    if supabase is not None:
-        st.markdown('<div class="status-row"><div class="dot-green"></div>Supabase Database</div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div class="status-row"><div class="dot-red"></div>Supabase Offline</div>', unsafe_allow_html=True)
+    db_status = '<div class="status-row"><div class="dot-g"></div>Supabase Database</div>' \
+        if supabase else '<div class="status-row"><div class="dot-r"></div>Supabase Offline</div>'
+    st.markdown(db_status, unsafe_allow_html=True)
+    st.markdown('<div class="status-row"><div class="dot-g"></div>Render Cloud API</div>', unsafe_allow_html=True)
+    st.markdown('<div class="status-row"><div class="dot-g"></div>Multimodal Engine</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="status-row"><div class="dot-green"></div>Render Cloud API</div>', unsafe_allow_html=True)
-    st.markdown('<div class="status-row"><div class="dot-green"></div>Multimodal Engine</div>', unsafe_allow_html=True)
-
-    st.markdown("<hr class='div'>", unsafe_allow_html=True)
-
+    st.markdown("<hr class='hr-div'>", unsafe_allow_html=True)
     st.markdown("### Cloud Management")
+
     if st.button("⚡ Ping API Server", use_container_width=True):
-        with st.spinner("Pinging Render server..."):
+        with st.spinner("Pinging Render server…"):
             if check_backend_health():
                 st.success("Server is live and ready.")
             else:
                 st.error("Server sleeping. Wait ~60 s and retry.")
 
-    st.markdown("<hr class='div'>", unsafe_allow_html=True)
+    st.markdown("<hr class='hr-div'>", unsafe_allow_html=True)
     st.markdown("""
-    <div style="font-size:0.75rem; color:#b5aea5; line-height:1.8;">
-        <strong style="color:#6b6560; font-size:0.8rem;">CloudPriceML</strong><br>
-        AI-Powered Valuation Engine<br><br>
-        Built by<br>
-        <strong style="color:#1a1714; font-size:0.82rem;">Aanchal Chauhan</strong>
-    </div>
-    """, unsafe_allow_html=True)
+    <div style="font-size:0.74rem;color:#b5aea5;line-height:1.8;">
+      <strong style="color:#6b6560;font-size:0.78rem;">CloudPriceML</strong><br>
+      AI-Powered Valuation Engine<br><br>
+      Built by<br>
+      <strong style="color:#1a1714;font-size:0.8rem;">Aanchal Chauhan</strong>
+    </div>""", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────
 # TOP NAV BAR
 # ─────────────────────────────────────────────────────────
 st.markdown("""
 <div class="topbar">
-  <div class="topbar-brand">Cloud<span>Price</span>ML</div>
-  <div class="topbar-meta">E-Commerce Valuation Intelligence &nbsp;·&nbsp; v2.0</div>
+  <div class="topbar-left">
+    <div class="topbar-brand">Cloud<span>Price</span>ML</div>
+    <div class="topbar-pill">v2.0</div>
+  </div>
+  <div class="topbar-right">E-Commerce Valuation Intelligence &nbsp;·&nbsp; Render API</div>
 </div>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────
-# HERO
+# HERO BANNER
 # ─────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero-section">
-  <div class="hero-kicker">AI-Powered Price Intelligence</div>
-  <h1 class="hero-title">Valuation built for<br><em>serious sellers.</em></h1>
-  <p class="hero-sub">Enter your product details and let our multimodal model — trained on 75,000+ real market assets — generate an accurate, confidence-calibrated price in seconds.</p>
+  <div class="hero-text">
+    <div class="hero-kicker">AI-Powered Price Intelligence</div>
+    <h1 class="hero-title">Valuation built for<br><em>serious sellers.</em></h1>
+    <p class="hero-sub">Enter your product details and let our multimodal model — trained on 75,000+ real market assets — generate an accurate, confidence-calibrated price in seconds.</p>
+  </div>
+  <div class="hero-badges">
+    <div class="hero-badge"><div class="hb-val">75k+</div><div class="hb-lbl">Assets</div></div>
+    <div class="hero-badge"><div class="hb-val">±15%</div><div class="hb-lbl">Confidence</div></div>
+    <div class="hero-badge"><div class="hb-val">AI</div><div class="hb-lbl">Multimodal</div></div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -558,35 +716,53 @@ st.markdown("""
 st.markdown("""
 <div class="stat-strip">
   <div class="stat-item"><div class="si-label">Model Type</div><div class="si-value">Multimodal</div></div>
-  <div class="stat-item"><div class="si-label">Training Assets</div><div class="si-value">75k+</div></div>
+  <div class="stat-item"><div class="si-label">Training Assets</div><div class="si-value">75,000+</div></div>
   <div class="stat-item"><div class="si-label">Inference Host</div><div class="si-value">Render API</div></div>
   <div class="stat-item"><div class="si-label">Image Analysis</div><div class="si-value">Enabled</div></div>
-  <div class="stat-item"><div class="si-label">Confidence Interval</div><div class="si-value">± 15%</div></div>
+  <div class="stat-item"><div class="si-label">Confidence Band</div><div class="si-value">± 15%</div></div>
 </div>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────
-# MAIN LAYOUT
+# MAIN 2-COLUMN LAYOUT
 # ─────────────────────────────────────────────────────────
-col_input, col_result = st.columns([1.15, 1], gap="large")
+col_input, col_result = st.columns([1.1, 1], gap="large")
 
+# ── LEFT — Inputs ──────────────────────────────────────
 with col_input:
-    st.markdown('<div class="panel-header"><span class="panel-step">Step 01</span><span class="panel-title">Product Description</span></div>', unsafe_allow_html=True)
+
+    # ── Card: Description ──
+    st.markdown("""
+    <div class="content-card">
+      <div class="sec-header">
+        <span class="sec-step">Step 01</span>
+        <span class="sec-title">Product Description</span>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
     catalog_content = st.text_area(
-        "Product description",
-        placeholder="e.g., Samsung 65-inch 4K Smart QLED TV with Quantum HDR, Dolby Atmos, built-in Alexa, 120Hz refresh rate, 4 HDMI ports...",
-        height=165,
-        label_visibility="collapsed"
+        "description",
+        placeholder="e.g., Samsung 65-inch 4K Smart QLED TV with Quantum HDR, Dolby Atmos, built-in Alexa, 120Hz refresh rate, 4 HDMI ports…",
+        height=160,
+        label_visibility="collapsed",
     )
-    st.markdown('<p class="tip-text">💡 Richer descriptions yield more accurate valuations — include specs, condition, brand, and key features.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="tip">💡 More detail = more accurate valuation. Include specs, condition, brand and key features.</p>', unsafe_allow_html=True)
 
-    st.markdown("<hr class='div'>", unsafe_allow_html=True)
+    st.markdown("<hr class='hr-div'>", unsafe_allow_html=True)
 
-    st.markdown('<div class="panel-header"><span class="panel-step">Step 02</span><span class="panel-title">Product Image</span></div>', unsafe_allow_html=True)
+    # ── Card: Image ──
+    st.markdown("""
+    <div class="content-card">
+      <div class="sec-header">
+        <span class="sec-step">Step 02</span>
+        <span class="sec-title">Product Image</span>
+      </div>
+    </div>""", unsafe_allow_html=True)
+
     uploaded_file = st.file_uploader(
         "Upload product image",
         type=["jpg", "jpeg", "png"],
-        label_visibility="collapsed"
+        label_visibility="collapsed",
     )
 
     image_url = ""
@@ -607,8 +783,9 @@ with col_input:
         else:
             st.warning("⚠️ Database offline — image will not be persisted.")
 
-    st.markdown("<hr class='div'>", unsafe_allow_html=True)
+    st.markdown("<hr class='hr-div'>", unsafe_allow_html=True)
 
+    # ── Advanced Metadata ──
     with st.expander("🛠️  Advanced Metadata  (Optional)"):
         h1, h2 = st.columns(2)
         with h1:
@@ -627,19 +804,28 @@ with col_input:
         final_catalog_text += " " + " ".join(hints)
 
     st.markdown("<br>", unsafe_allow_html=True)
+
     predict_clicked = st.button(
         "Generate Valuation  →",
         type="primary",
         use_container_width=True,
-        disabled=not catalog_content.strip()
+        disabled=not catalog_content.strip(),
     )
 
+# ── RIGHT — Result ─────────────────────────────────────
 with col_result:
-    st.markdown('<div class="panel-header"><span class="panel-step">Output</span><span class="panel-title">Valuation Report</span></div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="content-card">
+      <div class="sec-header">
+        <span class="sec-step">Output</span>
+        <span class="sec-title">Valuation Report</span>
+      </div>
+    </div>""", unsafe_allow_html=True)
 
     if image_url:
         st.image(image_url, use_container_width=True, caption="Visual asset submitted for analysis")
-        st.markdown("<hr class='div'>", unsafe_allow_html=True)
+        st.markdown("<hr class='hr-div'>", unsafe_allow_html=True)
 
     if not predict_clicked and not image_url:
         st.markdown("""
@@ -647,8 +833,7 @@ with col_result:
           <div class="re-icon">📊</div>
           <h4>Awaiting Input</h4>
           <p>Fill in the product description and click Generate Valuation to receive your AI-powered price estimate.</p>
-        </div>
-        """, unsafe_allow_html=True)
+        </div>""", unsafe_allow_html=True)
 
     if predict_clicked:
         with st.spinner("Running inference on Render server…"):
@@ -691,11 +876,12 @@ with col_result:
                             <div class="rb-val">₹{price_high:,.2f}</div>
                           </div>
                         </div>
-                        <div class="val-note">± 15% confidence interval based on live market variance</div>
+                        <div class="val-note">± 15% confidence interval · based on live market variance</div>
                       </div>
                     </div>
                     """, unsafe_allow_html=True)
 
+                    # Persist silently
                     if supabase is not None:
                         try:
                             supabase.table('predictions').insert({
@@ -710,7 +896,7 @@ with col_result:
                     st.error(f"API Error [{response.status_code}] — Verify the Render backend is running.")
 
             except requests.exceptions.Timeout:
-                st.error("🚨 Request timed out. Use Ping API Server in the sidebar, wait ~60 seconds, then retry.")
+                st.error("🚨 Request timed out. Click Ping API Server in the sidebar, wait ~60 s, then retry.")
             except requests.exceptions.ConnectionError:
                 st.error("🚨 Connection refused. The Render API appears to be offline.")
             except Exception as e:
