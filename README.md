@@ -8,7 +8,7 @@
 
 > **An enterprise-grade multimodal AI pipeline that predicts real-time market retail prices for e-commerce assets using visual and textual analysis.**
 
-**Live Demo:** [Insert Link to your Streamlit App]
+**Live Demo:**[https://amazon-ml-2025-price-predictor-h23bsbtzkdh2x32uxmy5f3.streamlit.app/]
 **Video Pitch / Output Demo:** [Insert Link to YouTube/Drive Video]
 
 ---
