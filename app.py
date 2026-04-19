@@ -546,4 +546,8 @@ with col_result:
                     st.error(f"API Error [{response.status_code}]")
 
             except Exception as e:
+<<<<<<< HEAD
                 st.error(f"Connection Error: {e}")
+=======
+                st.error(f"Connection Error: {e}")
+>>>>>>> c50fcbd0e6e5f917cc576ec54562e5f5c1e500de
