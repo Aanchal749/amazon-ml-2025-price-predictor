@@ -8,8 +8,8 @@
 
 > **An enterprise-grade multimodal AI pipeline that predicts real-time market retail prices for e-commerce assets using visual and textual analysis.**
 
-**Live Demo:**https://amazon-ml-2025-price-predictor-h23bsbtzkdh2x32uxmy5f3.streamlit.app/.
-**Video Pitch / Output Demo:** 
+### 📸 Output Screenshot
+![ML Output - Samsung TV](https://github.com/Aanchal749/amazon-ml-2025-price-predictor/blob/72faede1fb7cd99d4b72d44c3c0be181a4fb4586/output_imes/ml%20output%20sumsung%20tv.png)
 
 ---
 
