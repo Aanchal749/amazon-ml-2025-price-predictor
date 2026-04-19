@@ -24,16 +24,17 @@ API_URL = "https://amazon-ml-2025-price-predictor.onrender.com/predict"
 HEALTH_URL = "https://amazon-ml-2025-price-predictor.onrender.com/health"
 
 # ─────────────────────────────────────────────────────────
-# SUPABASE INITIALIZATION (Securely using Streamlit Secrets)
+# SUPABASE INITIALIZATION (EMERGENCY BYPASS FOR DEADLINE)
 # ─────────────────────────────────────────────────────────
 @st.cache_resource
 def init_supabase():
     try:
-        # Securely grabs the keys from Streamlit Cloud's secret vault!
-        url = st.secrets["https://dqbirxwhitqijqlkbuzm.supabase.co"]
-        key = st.secrets["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmlyeHdoaXRxaWpxbGtidXptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzYyNjgsImV4cCI6MjA5MTg1MjI2OH0.th8v0wCSLx9T4HlVyZ-_dg_CRLtpFQ8wjZeLa8Ypzus"]
+        # We are bypassing secrets and hardcoding the values so it connects instantly!
+        url = "https://dqbirxwhitqijqlkbuzm.supabase.co"
+        key = "sb_publishable_zEoVhO0kCpcPxhEoYtYodw_13SniAKt"
         return create_client(url, key)
-    except Exception:
+    except Exception as e:
+        st.error(f"DATABASE CRASH REASON: {e}")
         return None
 
 supabase: Client = init_supabase()
@@ -152,7 +153,7 @@ with col_input:
                     image_url = supabase.storage.from_("product_images").get_public_url(file_name)
                     st.success("Image secured!")
                 except Exception as e:
-                    st.error("Could not upload image. Check Supabase storage permissions.")
+                    st.error(f"Could not upload image. Supabase Error: {e}")
         else:
             st.warning("⚠️ Database disconnected. Image won't be saved.")
 
@@ -226,7 +227,7 @@ with col_result:
                                 "predicted_price": price,
                                 "image_url": image_url
                             }).execute()
-                        except Exception as e:
+                        except Exception:
                             pass # Fail silently for the user, no need to show DB errors on success
                 else:
                     st.error(f"API Error [{response.status_code}]: Please check if the Render backend is running.")
