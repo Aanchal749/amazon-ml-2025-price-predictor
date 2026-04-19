@@ -1,6 +1,6 @@
 """
-CloudPriceML — Bright Enterprise SaaS Dashboard
-================================================
+CloudPriceML — High-Contrast "Block" SaaS Dashboard
+===================================================
 Sends requests to the live Render FastAPI backend.
 """
 
@@ -16,14 +16,14 @@ st.set_page_config(
     page_title="CloudPriceML | Seller Intelligence",
     page_icon="💰",
     layout="wide",
-    initial_sidebar_state="expanded", # Forces sidebar open
+    initial_sidebar_state="expanded",
 )
 
 API_URL    = "https://amazon-ml-2025-price-predictor.onrender.com/predict"
 HEALTH_URL = "https://amazon-ml-2025-price-predictor.onrender.com/health"
 
 # ─────────────────────────────────────────────────────────
-# SUPABASE (Hardcoded Working Key for Hackathon)
+# SUPABASE
 # ─────────────────────────────────────────────────────────
 @st.cache_resource
 def init_supabase():
@@ -38,208 +38,128 @@ def init_supabase():
 supabase: Client = init_supabase()
 
 # ─────────────────────────────────────────────────────────
-# CSS — BRIGHT, BIG, ENTERPRISE-GRADE UI
+# CSS — HIGH CONTRAST BLOCK/OUTLINE THEME
 # ─────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-/* ── Fonts: Ultra-clean Enterprise sans-serif ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
 
 :root {
-    --bg:        #f8fafc; /* Very light slate for background */
-    --surface:   #ffffff; /* Pure white cards */
-    --border:    #e2e8f0;
-    --primary:   #2563eb; /* Bright Electric Blue */
-    --primary-dk:#1d4ed8;
-    --text-main: #0f172a; /* Near black for high contrast */
-    --text-mut:  #475569;
-    --success:   #10b981; /* Bright Emerald Green */
-    --radius-lg: 16px;
-    --shadow:    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    --bg-main:   #f1f5f9; /* Overall app background */
+    --block-out: #0f172a; /* The thick black outline color */
+    --blue-bg:   #dbeafe; /* Light blue for hero */
+    --white-bg:  #ffffff; /* White for inputs */
+    --green-bg:  #dcfce7; /* Light green for success */
+    --slate-bg:  #e2e8f0; /* Result column background */
+    --primary:   #2563eb;
+    --radius:    12px;
 }
 
-*, *::before, *::after { box-sizing: border-box; }
-html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: var(--text-main); }
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; color: #0f172a; }
+.stApp { background-color: var(--bg-main) !important; }
 
-.stApp { background-color: var(--bg) !important; }
-
-/* Keep central container wide and clean */
-.block-container {
-    padding: 2rem 3rem 4rem !important;
-    max-width: 1400px !important;
-}
+/* Main Container spacing */
+.block-container { padding: 2rem 3rem 4rem !important; max-width: 1400px !important; }
 
 /* ━━━━━━━━━━ SIDEBAR ━━━━━━━━━━ */
 [data-testid="stSidebar"] {
-    background-color: var(--surface) !important;
-    border-right: 2px solid var(--border) !important;
+    background-color: var(--white-bg) !important;
+    border-right: 3px solid var(--block-out) !important;
 }
-[data-testid="stSidebar"] h3 {
-    font-size: 1.1rem !important;
-    font-weight: 800 !important;
-    color: var(--text-main) !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 1rem !important;
-}
-[data-testid="stSidebar"] .stMarkdown p {
-    font-size: 1.05rem !important;
-    color: var(--text-mut) !important;
-    font-weight: 500 !important;
-}
+[data-testid="stSidebar"] h3 { font-weight: 900 !important; font-size: 1.2rem !important; text-transform: uppercase; color: var(--block-out) !important; }
 
-/* ━━━━━━━━━━ HERO BANNER ━━━━━━━━━━ */
+/* ━━━━━━━━━━ HERO BANNER BLOCK ━━━━━━━━━━ */
 .hero-box {
-    background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
-    border: 1px solid #bfdbfe;
-    border-radius: var(--radius-lg);
+    background-color: var(--blue-bg);
+    border: 3px solid var(--block-out);
+    border-radius: var(--radius);
     padding: 3rem;
     margin-bottom: 2rem;
-    box-shadow: var(--shadow);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    box-shadow: 6px 6px 0px 0px var(--block-out);
 }
-.hero-title {
-    font-size: 3rem;
-    font-weight: 800;
-    color: var(--text-main);
-    line-height: 1.1;
-    margin: 0 0 1rem 0;
-    letter-spacing: -0.03em;
-}
-.hero-title span { color: var(--primary); }
-.hero-sub {
-    font-size: 1.2rem;
-    color: var(--text-mut);
-    margin: 0;
-    font-weight: 500;
-    max-width: 600px;
-}
+.hero-title { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin: 0 0 1rem 0; letter-spacing: -0.03em; }
+.hero-sub { font-size: 1.2rem; font-weight: 600; max-width: 700px; margin: 0; }
 
-/* ━━━━━━━━━━ STAT STRIP ━━━━━━━━━━ */
-.stat-strip {
-    display: flex;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
+/* ━━━━━━━━━━ STAT CARDS BLOCKS ━━━━━━━━━━ */
+.stat-strip { display: flex; gap: 2rem; margin-bottom: 2.5rem; }
 .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    background: var(--white-bg);
+    border: 3px solid var(--block-out);
+    border-radius: var(--radius);
     padding: 1.5rem;
     flex: 1;
-    box-shadow: var(--shadow);
     text-align: center;
+    box-shadow: 4px 4px 0px 0px var(--block-out);
 }
-.stat-lbl {
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: var(--text-mut);
-    letter-spacing: 0.05em;
+.stat-lbl { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; }
+.stat-val { font-size: 2rem; font-weight: 900; color: var(--primary); margin-top: 0.5rem; }
+
+/* ━━━━━━━━━━ LAYOUT COLUMNS AS BLOCKS ━━━━━━━━━━ */
+/* Left Column (Inputs) */
+[data-testid="column"]:nth-of-type(1) {
+    background: var(--white-bg);
+    border: 3px solid var(--block-out);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: 6px 6px 0px 0px var(--block-out);
 }
-.stat-val {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--primary);
-    margin-top: 0.5rem;
+/* Right Column (Results) */
+[data-testid="column"]:nth-of-type(2) {
+    background: var(--slate-bg);
+    border: 3px solid var(--block-out);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: 6px 6px 0px 0px var(--block-out);
 }
 
-/* ━━━━━━━━━━ INPUTS (MASSIVE & BRIGHT) ━━━━━━━━━━ */
-.stTextArea textarea {
-    background: var(--surface) !important;
-    border: 2px solid var(--border) !important;
-    border-radius: 12px !important;
-    font-size: 1.2rem !important; /* Huge text for visibility */
-    padding: 1rem !important;
-    color: var(--text-main) !important;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02) !important;
+/* ━━━━━━━━━━ INPUTS STYLING ━━━━━━━━━━ */
+.stTextArea textarea, .stSelectbox > div > div, .stNumberInput input, [data-testid="stFileUploader"] {
+    background: var(--bg-main) !important;
+    border: 2px solid var(--block-out) !important;
+    border-radius: 8px !important;
+    font-size: 1.1rem !important;
+    color: var(--block-out) !important;
+    font-weight: 600 !important;
 }
-.stTextArea textarea:focus {
-    border-color: var(--primary) !important;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2) !important;
-}
-label[data-testid="stWidgetLabel"] p {
-    font-size: 1.2rem !important;
-    font-weight: 700 !important;
-    color: var(--text-main) !important;
-}
+.stTextArea textarea:focus { background: var(--white-bg) !important; }
 
 /* ━━━━━━━━━━ BUTTONS ━━━━━━━━━━ */
 .stButton > button[kind="primary"] {
     background-color: var(--primary) !important;
     color: white !important;
     font-size: 1.3rem !important;
-    font-weight: 700 !important;
-    padding: 1rem !important;
-    border-radius: 12px !important;
-    border: none !important;
-    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39) !important;
-    transition: all 0.2s ease !important;
+    font-weight: 900 !important;
+    padding: 1.5rem !important;
+    border: 3px solid var(--block-out) !important;
+    border-radius: 8px !important;
+    box-shadow: 4px 4px 0px 0px var(--block-out) !important;
+    text-transform: uppercase !important;
+    transition: all 0.1s ease !important;
 }
-.stButton > button[kind="primary"]:hover {
-    background-color: var(--primary-dk) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
+.stButton > button[kind="primary"]:active {
+    transform: translate(4px, 4px) !important;
+    box-shadow: 0px 0px 0px 0px var(--block-out) !important;
 }
 
 /* ━━━━━━━━━━ VALUATION RESULT CARD ━━━━━━━━━━ */
 .val-card-container {
-    background: var(--surface);
-    border: 2px solid var(--success);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
+    background: var(--white-bg);
+    border: 3px solid var(--block-out);
+    border-radius: var(--radius);
     overflow: hidden;
     text-align: center;
+    box-shadow: 4px 4px 0px 0px var(--block-out);
+    margin-top: 1rem;
 }
-.val-header {
-    background: #ecfdf5;
-    padding: 2rem;
-    border-bottom: 1px solid #d1fae5;
-}
-.val-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #047857;
-    letter-spacing: 0.1em;
-}
-.val-big-price {
-    font-size: 4.5rem;
-    font-weight: 800;
-    color: var(--success);
-    margin: 1rem 0;
-    line-height: 1;
-}
-.val-footer {
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    background: var(--surface);
-}
-.val-range-box {
-    flex: 1;
-}
-.val-range-lbl {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-mut);
-    text-transform: uppercase;
-}
-.val-range-val {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-main);
-}
+.val-header { background: var(--green-bg); padding: 2rem; border-bottom: 3px solid var(--block-out); }
+.val-title { font-size: 1.2rem; font-weight: 800; text-transform: uppercase; color: var(--block-out); }
+.val-big-price { font-size: 4.5rem; font-weight: 900; color: #166534; margin: 1rem 0; line-height: 1; }
+.val-footer { padding: 1.5rem; display: flex; justify-content: space-between; background: var(--white-bg); }
+.val-range-box { flex: 1; }
+.val-range-lbl { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; }
+.val-range-val { font-size: 1.5rem; font-weight: 900; }
 
-/* Status dots */
-.status-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 0; font-size: 1rem; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border); }
-.dot-g { width: 12px; height: 12px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px rgba(16,185,129,0.2); }
-.dot-r { width: 12px; height: 12px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,0.2); }
-
-/* Hide ONLY footer and menu, leave header for sidebar toggle */
+/* Hide Streamlit Header/Footer */
 #MainMenu, footer { visibility: hidden; height: 0; }
 </style>
 """, unsafe_allow_html=True)
@@ -247,11 +167,7 @@ label[data-testid="stWidgetLabel"] p {
 # ─────────────────────────────────────────────────────────
 # CONSTANTS & HELPERS
 # ─────────────────────────────────────────────────────────
-BRANDS = [
-    "Select a Brand...", "Samsung", "Apple", "Sony", "LG", "Philips",
-    "Bosch", "Havells", "Prestige", "Bajaj", "Whirlpool", "Godrej",
-    "Other / Unknown"
-]
+BRANDS = ["Select a Brand...", "Samsung", "Apple", "Sony", "LG", "Philips", "Bosch", "Havells", "Prestige", "Bajaj", "Whirlpool", "Godrej", "Other / Unknown"]
 
 def check_backend_health():
     try:
@@ -261,32 +177,24 @@ def check_backend_health():
         return False
 
 # ─────────────────────────────────────────────────────────
-# SIDEBAR (Highly Visible)
+# SIDEBAR
 # ─────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🔌 System Infrastructure")
-
-    db_status = '<div class="status-row"><div class="dot-g"></div>Supabase Secure Vault</div>' \
-        if supabase else '<div class="status-row"><div class="dot-r"></div>Supabase Offline</div>'
-    st.markdown(db_status, unsafe_allow_html=True)
-    st.markdown('<div class="status-row"><div class="dot-g"></div>Render API Connected</div>', unsafe_allow_html=True)
-    st.markdown('<div class="status-row"><div class="dot-g"></div>Vision AI Active</div>', unsafe_allow_html=True)
-
+    st.markdown("### ⚙️ Infrastructure")
+    
+    if supabase: st.success("🟢 Vault Active")
+    else: st.error("🔴 Vault Offline")
+    
+    st.success("🟢 Render API Linked")
+    st.success("🟢 Multimodal Active")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    if st.button("⚡ Wake Up Servers", use_container_width=True):
-        with st.spinner("Pinging Render server…"):
-            if check_backend_health():
-                st.success("✅ Servers Live & Ready")
-            else:
-                st.error("⚠️ Server sleeping. Wait 60s.")
+    if st.button("⚡ Wake Up API", use_container_width=True):
+        with st.spinner("Pinging Render..."):
+            if check_backend_health(): st.success("Ready!")
+            else: st.error("Sleeping. Wait 60s.")
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("""
-    <div style="font-size:1rem;color:#475569;background:#f8fafc;padding:1rem;border-radius:8px;border:1px solid #e2e8f0;">
-      <strong>CloudPriceML v2.0</strong><br>
-      Developed by <strong>Aanchal Chauhan</strong>
-    </div>""", unsafe_allow_html=True)
+    st.markdown("<br><br><br><b>CloudPriceML v2.0</b><br>By Aanchal Chauhan", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────
 # HERO BANNER & STATS
@@ -294,17 +202,17 @@ with st.sidebar:
 st.markdown("""
 <div class="hero-box">
   <div>
-    <h1 class="hero-title">Cloud<span>Price</span>ML</h1>
-    <p class="hero-sub">Enterprise-grade AI product valuation. Upload your asset and let our multimodal engine predict real-time market value.</p>
+    <h1 class="hero-title">CloudPriceML</h1>
+    <p class="hero-sub">Enterprise multimodal valuation engine. Upload an asset below to predict its live market retail value.</p>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("""
 <div class="stat-strip">
-  <div class="stat-card"><div class="stat-lbl">Dataset Volume</div><div class="stat-val">75,000+</div></div>
-  <div class="stat-card"><div class="stat-lbl">Engine Architecture</div><div class="stat-val">Multimodal AI</div></div>
-  <div class="stat-card"><div class="stat-lbl">Pricing Confidence</div><div class="stat-val">± 15%</div></div>
+  <div class="stat-card"><div class="stat-lbl">Dataset</div><div class="stat-val">75k+</div></div>
+  <div class="stat-card"><div class="stat-lbl">Engine</div><div class="stat-val">Vision AI</div></div>
+  <div class="stat-card"><div class="stat-lbl">Confidence</div><div class="stat-val">± 15%</div></div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -316,34 +224,28 @@ col_input, col_result = st.columns([1.2, 1], gap="large")
 # ── LEFT — Inputs ──────────────────────────────────────
 with col_input:
     st.markdown("### 📝 1. Asset Description")
-    catalog_content = st.text_area(
-        "description",
-        placeholder="e.g., Samsung 65-inch 4K Smart QLED TV with Quantum HDR...",
-        height=180,
-        label_visibility="collapsed",
-    )
+    catalog_content = st.text_area("description", placeholder="e.g., Samsung 65-inch 4K Smart QLED TV...", height=150, label_visibility="collapsed")
 
-    st.markdown("### 📸 2. Visual Inspection (Optional)")
+    st.markdown("### 📸 2. Image Upload (Optional)")
     uploaded_file = st.file_uploader("Upload product image", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
 
     image_url = ""
 
     if uploaded_file is not None:
         if supabase is not None:
-            with st.spinner("Securing image..."):
+            with st.spinner("Securing..."):
                 try:
                     file_bytes = uploaded_file.getvalue()
                     file_name  = f"scan_{int(time.time())}_{uploaded_file.name}"
                     supabase.storage.from_("product_images").upload(file_name, file_bytes, {"content-type": uploaded_file.type})
                     image_url = supabase.storage.from_("product_images").get_public_url(file_name)
-                    st.success("✅ Image verified and secured.")
-                except Exception as e:
-                    st.error(f"Upload failed: {e}")
+                    st.success("✅ Secured in Cloud.")
+                except Exception: pass
 
-    with st.expander("⚙️ Advanced Tuning Parameters"):
+    with st.expander("⚙️ Advanced Metadata"):
         h1, h2 = st.columns(2)
         with h1: brand = st.selectbox("Manufacturer", BRANDS)
-        with h2: ipq = st.number_input("Unit Quantity", min_value=1, value=1)
+        with h2: ipq = st.number_input("Quantity", min_value=1, value=1)
 
     hints = []
     if brand and brand not in ("Select a Brand...", "Other / Unknown"): hints.append(brand.lower())
@@ -357,13 +259,13 @@ with col_input:
 
 # ── RIGHT — Result ─────────────────────────────────────
 with col_result:
-    st.markdown("### 📊 Valuation Report")
+    st.markdown("### 📊 Valuation Output")
 
     if image_url:
         st.image(image_url, use_container_width=True, caption="Analyzed Visual Asset")
 
     if not predict_clicked and not image_url:
-        st.info("👈 Enter product details on the left and click Generate Valuation.")
+        st.info("👈 Enter details on the left and click Generate.")
 
     if predict_clicked:
         with st.spinner("Running AI models on Render infrastructure…"):
@@ -424,5 +326,3 @@ with col_result:
 
             except Exception as e:
                 st.error(f"Connection Error: {e}")
-
-st.markdown("<br><br><center><small style='color:#94a3b8;'>CloudPriceML © 2026</small></center>", unsafe_allow_html=True)
