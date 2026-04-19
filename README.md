@@ -29,18 +29,37 @@ In the hyper-competitive e-commerce landscape, sellers struggle to price items o
 
 ## 📸 System Output & Screenshots
 
-### 1. The Dashboard 
-![Dashboard Interface]([Drag and drop your main UI screenshot here])
+## 📊 Project Visuals
+
+### 1. 🖥️ The Dashboard  
+![Dashboard Interface](https://raw.githubusercontent.com/Aanchal749/amazon-ml-2025-price-predictor/4a148d616caf4bc084bb2d71c6302739604208d9/output_imes/dashboard.png)  
 *The main pricing intelligence interface featuring advanced metadata tuning.*
 
-### 2. AI Valuation Result
-![Output Result]([Drag and drop your output/pricing screenshot here])
+---
+
+### 2. 🤖 AI Valuation Result  
 *Generating a confidence-calibrated point estimate with market highs and lows.*
 
-### 3. Architecture Flow
-![Architecture Diagram]([Drag and drop an architecture diagram if you have one, or delete this line])
+| CatBoost | XGBoost |
+|----------|--------|
+| ![](https://raw.githubusercontent.com/Aanchal749/amazon-ml-2025-price-predictor/4a148d616caf4bc084bb2d71c6302739604208d9/output_imes/CatBoost.png) | ![](https://raw.githubusercontent.com/Aanchal749/amazon-ml-2025-price-predictor/4a148d616caf4bc084bb2d71c6302739604208d9/output_imes/XGBoost.png) |
+
+| LightGBM | Ensemble |
+|----------|----------|
+| ![](https://raw.githubusercontent.com/Aanchal749/amazon-ml-2025-price-predictor/4a148d616caf4bc084bb2d71c6302739604208d9/output_imes/lightGBM.png) | ![](https://raw.githubusercontent.com/Aanchal749/amazon-ml-2025-price-predictor/4a148d616caf4bc084bb2d71c6302739604208d9/output_imes/EnsembleWeight.png) |
 
 ---
+
+### 📌 Additional Outputs
+
+| Result 1 | Result 2 |
+|----------|----------|
+| ![](https://raw.githubusercontent.com/Aanchal749/amazon-ml-2025-price-predictor/4a148d616caf4bc084bb2d71c6302739604208d9/output_imes/Screenshot%202026-04-14%20113505.png) | ![](https://raw.githubusercontent.com/Aanchal749/amazon-ml-2025-price-predictor/4a148d616caf4bc084bb2d71c6302739604208d9/output_imes/Screenshot%202026-04-14%20113709.png) |
+
+---
+
+### 3. 🧩 Architecture Flow  
+[View Architecture Diagram](https://drive.google.com/file/d/1-8gO2UkOI7zPR7fVjk9xln3Q_LGA1BLQ/view?usp=sharing)
 
 ## 🛠️ Tech Stack & Infrastructure
 * **Frontend:** Streamlit, Custom CSS
